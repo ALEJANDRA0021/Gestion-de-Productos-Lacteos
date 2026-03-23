@@ -1,49 +1,340 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Gestion_de_Productos_Lacteos</title>
+    <title>@ViewData["Title"] - Sistema de Inventario de Lácteos</title>
+
+    <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Font Awesome 6 (Iconos profesionales) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- SweetAlert2 (Alertas bonitas) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+
+    <!-- CSS Personalizado -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Gestion_de_Productos_Lacteos.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SistemaInventarioLacteos.styles.css" asp-append-version="true" />
+
+    <style>
+        /* Estilos personalizados */
+        .navbar-brand {
+            font-weight: bold;
+            color: #2c3e50 !important;
+        }
+
+        .nav-link {
+            color: #34495e !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .nav-link:hover {
+                color: #3498db !important;
+                transform: translateY(-2px);
+            }
+
+            .nav-link i {
+                margin-right: 8px;
+            }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+        }
+
+        .dropdown-item i {
+            margin-right: 8px;
+            width: 20px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            margin-top: auto;
+        }
+
+        .user-info {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .badge-notification {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            font-size: 10px;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Gestion_de_Productos_Lacteos</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <!-- Logo y nombre -->
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-cheese"></i>
+                    Sistema de Inventario de Lácteos
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="navbar-collapse collapse d-lg-flex justify-content-between">
+                    <!-- Menú principal -->
+                    <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i> Inicio
+                            </a>
                         </li>
+
+                        <!-- Menú desplegable: Productos -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="productosDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-boxes"></i> Productos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Productos" asp-action="Index">
+                                        <i class="fas fa-list"></i> Lista de Productos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Productos" asp-action="Create">
+                                        <i class="fas fa-plus-circle"></i> Nuevo Producto
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Productos" asp-action="Categorias">
+                                        <i class="fas fa-tags"></i> Categorías
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Menú desplegable: Ventas -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="ventasDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-shopping-cart"></i> Ventas
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Ventas" asp-action="Create">
+                                        <i class="fas fa-cash-register"></i> Nueva Venta
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Ventas" asp-action="Index">
+                                        <i class="fas fa-history"></i> Historial de Ventas
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Ventas" asp-action="Reportes">
+                                        <i class="fas fa-chart-line"></i> Reportes
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Inventario -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" asp-controller="Inventario" asp-action="Index">
+                                <i class="fas fa-warehouse"></i> Inventario
+                                @* Mostrar badge si hay stock bajo *@
+                                @if (ViewBag.StockBajoCount != null && ViewBag.StockBajoCount > 0)
+                                {
+                                    <span class="badge bg-warning text-dark position-relative">
+                                        @ViewBag.StockBajoCount
+                                    </span>
+                                }
+                            </a>
                         </li>
+
+                        <!-- Proveedores -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Proveedores" asp-action="Index">
+                                <i class="fas fa-truck"></i> Proveedores
+                            </a>
+                        </li>
+
+                        <!-- Clientes -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Clientes" asp-action="Index">
+                                <i class="fas fa-users"></i> Clientes
+                            </a>
+                        </li>
+
+                        <!-- Reportes -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Reportes" asp-action="Index">
+                                <i class="fas fa-chart-bar"></i> Reportes
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Barra lateral derecha (Usuario) -->
+                    <ul class="navbar-nav">
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle user-info" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle"></i>
+                                    @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                            <i class="fas fa-id-card"></i> Mi Perfil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Settings">
+                                            <i class="fas fa-cog"></i> Configuración
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
+                                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Register">
+                                    <i class="fas fa-user-plus"></i> Registrarse
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <!-- Contenido principal -->
+    <div class="container-fluid px-4 py-3">
+        <main role="main">
+            <!-- Mensajes de alerta (TempData) -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Warning"] != null)
+            {
+                <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i> @TempData["Warning"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Gestion_de_Productos_Lacteos - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Footer -->
+    <footer class="footer border-top mt-auto py-3 text-muted">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <i class="fas fa-copyright"></i> 2026 - Sistema de Inventario de Productos Lácteos
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none me-3">
+                        <i class="fas fa-shield-alt"></i> Privacidad
+                    </a>
+                    <a asp-controller="Home" asp-action="Help" class="text-decoration-none">
+                        <i class="fas fa-question-circle"></i> Ayuda
+                    </a>
+                </div>
+            </div>
         </div>
     </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Script para cerrar alertas automáticamente -->
+    <script>
+        // Cerrar alertas después de 5 segundos
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+
+        // Función global para mostrar alertas con SweetAlert
+        window.mostrarAlerta = function(tipo, mensaje) {
+            Swal.fire({
+                icon: tipo,
+                title: tipo === 'success' ? '¡Éxito!' : tipo === 'error' ? '¡Error!' : 'Aviso',
+                text: mensaje,
+                confirmButtonColor: '#3498db',
+                timer: 3000,
+                showConfirmButton: true
+            });
+        };
+
+        // Función para confirmar acciones
+        window.confirmarAccion = function(mensaje, url, metodo) {
+            Swal.fire({
+                title: '¿Estás segura?',
+                text: mensaje,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        type: metodo || 'POST',
+                        success: function() {
+                            mostrarAlerta('success', 'Operación realizada correctamente');
+                            location.reload();
+                        },
+                        error: function() {
+                            mostrarAlerta('error', 'Error al realizar la operación');
+                        }
+                    });
+                }
+            });
+        };
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

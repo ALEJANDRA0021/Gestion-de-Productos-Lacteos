@@ -1,0 +1,192 @@
+﻿@model IEnumerable<SistemaInventarioLacteos.Models.Entities.Inventario>
+
+@{
+    ViewData["Title"] = "Control de Inventario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="fas fa-warehouse me-2"></i>Control de Inventario
+        </h1>
+        <button class="btn btn-primary" onclick="abrirModalMovimiento()">
+            <i class="fas fa-exchange-alt me-1"></i> Registrar Movimiento
+        </button>
+    </div>
+
+    <!-- Tarjetas de alertas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>Stock Crítico</h6>
+                            <h3>@Model.Count(i => i.StockActual == 0)</h3>
+                        </div>
+                        <i class="fas fa-skull fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>Stock Bajo</h6>
+                            <h3>@Model.Count(i => i.StockActual > 0 && i.StockActual <= i.StockMinimo)</h3>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>Stock Normal</h6>
+                            <h3>@Model.Count(i => i.StockActual > i.StockMinimo)</h3>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de inventario -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Mínimo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.StockActual <= item.StockMinimo ? "table-warning" : "")">
+                                <td>
+                                    <strong>@item.Producto?.NombreProducto</strong>
+                                </td>
+                                <td>@item.Producto?.Categoria</td>
+                                <td>
+                                    <span class="fw-bold @(item.StockActual == 0 ? "text-danger" : "")">
+                                        @item.StockActual
+                                    </span>
+                                </td>
+                                <td>@item.StockMinimo</td>
+                                <td>
+                                    @if (item.StockActual == 0)
+                                    {
+                                        <span class="badge bg-danger">Agotado</span>
+                                    }
+                                    else if (item.StockActual <= item.StockMinimo)
+                                    {
+                                        <span class="badge bg-warning text-dark">⚠️ Bajo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Normal</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            onclick="ajustarStock(@item.IdProducto, @item.StockActual)">
+                                        <i class="fas fa-edit"></i> Ajustar
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para ajustar stock -->
+<div class="modal fade" id="modalStock" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajustar Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="productoId">
+                <div class="mb-3">
+                    <label class="form-label">Tipo de movimiento</label>
+                    <select id="tipoMovimiento" class="form-select">
+                        <option value="Entrada">📥 Entrada (Compra)</option>
+                        <option value="Salida">📤 Salida (Venta)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" id="cantidad" class="form-control" min="1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Motivo</label>
+                    <textarea id="motivo" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarMovimiento()">Registrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function abrirModalMovimiento() {
+            $('#modalStock').modal('show');
+        }
+
+        function ajustarStock(id, stockActual) {
+            $('#productoId').val(id);
+            $('#modalStock').modal('show');
+        }
+
+        function guardarMovimiento() {
+            let data = {
+                idProducto: $('#productoId').val(),
+                tipoMovimiento: $('#tipoMovimiento').val(),
+                cantidad: parseInt($('#cantidad').val()),
+                descripcion: $('#motivo').val()
+            };
+
+            if (!data.cantidad || data.cantidad <= 0) {
+                alert('Ingrese una cantidad válida');
+                return;
+            }
+
+            $.ajax({
+                url: '/Inventario/RegistrarMovimiento',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function() {
+                    alert('Movimiento registrado');
+                    location.reload();
+                },
+                error: function() {
+                    alert('Error al registrar el movimiento');
+                }
+            });
+        }
+    </script>
+}

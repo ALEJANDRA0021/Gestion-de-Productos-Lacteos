@@ -1,0 +1,152 @@
+﻿@model IEnumerable<SistemaInventarioLacteos.Models.Entities.Producto>
+
+@{
+    ViewData["Title"] = "Productos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="fas fa-boxes me-2"></i>Gestión de Productos
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-1"></i> Nuevo Producto
+        </a>
+    </div>
+
+    <!-- Tarjetas de resumen -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Productos</h6>
+                            <h2 class="mb-0">@Model.Count()</h2>
+                        </div>
+                        <i class="fas fa-box fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Stock Bajo</h6>
+                            <h2 class="mb-0">@Model.Count(p => p.Inventario != null && p.Inventario.StockActual <= p.Inventario.StockMinimo)</h2>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text" id="searchInput" class="form-control" placeholder="🔍 Buscar producto...">
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="productosTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Precio Venta</th>
+                            <th>Stock Actual</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.IdProducto</td>
+                                <td>
+                                    <strong>@item.NombreProducto</strong>
+                                    <br>
+                                    <small class="text-muted">@item.Descripcion</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@item.Categoria</span>
+                                </td>
+                                <td class="text-success fw-bold">$@item.PrecioVenta</td>
+                                <td>
+                                    @if (item.Inventario != null && item.Inventario.StockActual <= item.Inventario.StockMinimo)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            ⚠️ @item.Inventario.StockActual / @item.Inventario.StockMinimo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">@(item.Inventario?.StockActual ?? 0)</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Activo)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.IdProducto" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button onclick="eliminarProducto(@item.IdProducto)" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Búsqueda en tiempo real
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            let searchText = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#productosTable tbody tr');
+
+            rows.forEach(row => {
+                let text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        });
+
+        function eliminarProducto(id) {
+            if (confirm('¿Estás segura de eliminar este producto?')) {
+                $.ajax({
+                    url: '/Productos/Delete/' + id,
+                    type: 'POST',
+                    success: function() {
+                        location.reload();
+                    },
+                    error: function() {
+                        alert('Error al eliminar el producto');
+                    }
+                });
+            }
+        }
+    </script>
+}

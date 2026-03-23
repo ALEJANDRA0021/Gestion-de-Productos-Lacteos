@@ -1,0 +1,229 @@
+﻿@model SistemaInventarioLacteos.Models.ViewModels.VentaViewModel
+@{
+    ViewData["Title"] = "Nueva Venta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Panel de productos -->
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-search me-2"></i>Buscar Productos
+                    </h5>
+                    <input type="text" id="buscarProducto" class="form-control mt-2"
+                           placeholder="🔍 Código o nombre del producto...">
+                </div>
+                <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                    <div id="resultadosBusqueda"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel del carrito -->
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>Carrito de Ventas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Cliente</label>
+                        <select id="clienteId" class="form-select">
+                            <option value="">Seleccionar cliente...</option>
+                            @if (ViewBag.Clientes != null)
+                            {
+                                @foreach (var cliente in ViewBag.Clientes)
+                                {
+                                    <option value="@cliente.IdCliente">@cliente.Nombre</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm" id="carritoTable">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cant</th>
+                                    <th>Precio</th>
+                                    <th>Subtotal</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="carritoBody"></tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold">Total:</td>
+                                    <td colspan="2" class="text-end fw-bold fs-5 text-success" id="totalVenta">
+                                        $0.00
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-3">
+                        <button id="btnFinalizarVenta" class="btn btn-success btn-lg" onclick="finalizarVenta()">
+                            <i class="fas fa-check-circle me-2"></i>Finalizar Venta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let carrito = [];
+
+        // Búsqueda de productos
+        let timeoutId;
+        $('#buscarProducto').on('keyup', function() {
+            clearTimeout(timeoutId);
+            let term = $(this).val();
+            if (term.length >= 2) {
+                timeoutId = setTimeout(() => buscarProductos(term), 300);
+            }
+        });
+
+        function buscarProductos(term) {
+            $.ajax({
+                url: '/Ventas/BuscarProductos',
+                type: 'GET',
+                data: { term: term },
+                success: function(data) {
+                    mostrarResultados(data);
+                }
+            });
+        }
+
+        function mostrarResultados(productos) {
+            let html = '<div class="list-group">';
+            productos.forEach(p => {
+                html += `
+                    <div class="list-group-item list-group-item-action"
+                         onclick="agregarAlCarrito(${p.idProducto}, '${p.nombreProducto}', ${p.precioVenta})">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${p.nombreProducto}</strong><br>
+                                <small class="text-muted">Stock: ${p.stockActual}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="text-success fw-bold">$${p.precioVenta}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            $('#resultadosBusqueda').html(html);
+        }
+
+        function agregarAlCarrito(id, nombre, precio) {
+            let productoExistente = carrito.find(p => p.id === id);
+            if (productoExistente) {
+                productoExistente.cantidad++;
+                productoExistente.subtotal = productoExistente.cantidad * productoExistente.precio;
+            } else {
+                carrito.push({
+                    id: id,
+                    nombre: nombre,
+                    precio: precio,
+                    cantidad: 1,
+                    subtotal: precio
+                });
+            }
+            actualizarCarrito();
+        }
+
+        function actualizarCarrito() {
+            let html = '';
+            let total = 0;
+
+            carrito.forEach((item, index) => {
+                total += item.subtotal;
+                html += `
+                    <tr>
+                        <td>${item.nombre}</td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm"
+                                   value="${item.cantidad}" style="width: 70px"
+                                   onchange="actualizarCantidad(${index}, this.value)">
+                        </td>
+                        <td>$${item.precio}</td>
+                        <td>$${item.subtotal.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" onclick="eliminarDelCarrito(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            $('#carritoBody').html(html);
+            $('#totalVenta').text('$' + total.toFixed(2));
+        }
+
+        function actualizarCantidad(index, cantidad) {
+            cantidad = parseInt(cantidad);
+            if (cantidad > 0) {
+                carrito[index].cantidad = cantidad;
+                carrito[index].subtotal = carrito[index].precio * cantidad;
+                actualizarCarrito();
+            }
+        }
+
+        function eliminarDelCarrito(index) {
+            carrito.splice(index, 1);
+            actualizarCarrito();
+        }
+
+        function finalizarVenta() {
+            let clienteId = $('#clienteId').val();
+            if (!clienteId) {
+                alert('Por favor seleccione un cliente');
+                return;
+            }
+            if (carrito.length === 0) {
+                alert('Agregue productos al carrito');
+                return;
+            }
+
+            let venta = {
+                idCliente: clienteId,
+                detalles: carrito.map(item => ({
+                    idProducto: item.id,
+                    cantidad: item.cantidad,
+                    precio: item.precio,
+                    subtotal: item.subtotal
+                })),
+                total: carrito.reduce((sum, item) => sum + item.subtotal, 0)
+            };
+
+            $.ajax({
+                url: '/Ventas/RegistrarVenta',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(venta),
+                success: function(response) {
+                    alert('Venta registrada exitosamente');
+                    carrito = [];
+                    actualizarCarrito();
+                    $('#buscarProducto').val('');
+                    $('#resultadosBusqueda').html('');
+                },
+                error: function() {
+                    alert('Error al registrar la venta');
+                }
+            });
+        }
+    </script>
+}

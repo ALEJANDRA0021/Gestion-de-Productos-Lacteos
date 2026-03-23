@@ -1,20 +1,16 @@
-using Gestion_de_Productos_Lacteos.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using System.Collections.Generic;
 
-namespace Gestion_de_Productos_Lacteos.Controllers
+namespace SistemaInventarioLacteos.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
+            ViewBag.TotalProductos = 8;
+            ViewBag.StockBajo = 2;
+            ViewBag.VentasHoy = 125.50m;
+            ViewBag.ProductosPorVencer = 3;
             return View();
         }
 
@@ -23,10 +19,9 @@ namespace Gestion_de_Productos_Lacteos.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Help()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
     }
 }
