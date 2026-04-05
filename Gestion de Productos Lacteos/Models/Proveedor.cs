@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Gestion_de_Productos_Lacteos.Models;
 
-public partial class Proveedore
+public partial class Proveedor
 {
     public int IdProveedor { get; set; }
 

@@ -33,23 +33,23 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
     public virtual DbSet<Producto> Productos { get; set; }
 
-    public virtual DbSet<Proveedore> Proveedores { get; set; }
+    public virtual DbSet<Proveedor> Proveedors { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Rol> Rols { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-    public virtual DbSet<Venta> Ventas { get; set; }
+    public virtual DbSet<Ventum> Venta { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=DIEGO;Database=SistemaInventarioLacteos;User id = sa; Password= Catolica10; Connect Timeout = 120; Encrypt = False;");
+        => optionsBuilder.UseSqlServer("Server=DIEGO;Database=SistemaInventarioLacteos;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AlertasVencimiento>(entity =>
         {
-            entity.HasKey(e => e.IdAlerta).HasName("PK__AlertasV__D09954279551CD9A");
+            entity.HasKey(e => e.IdAlerta).HasName("PK__AlertasV__D0995427A82BE975");
 
             entity.ToTable("AlertasVencimiento");
 
@@ -63,14 +63,16 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
             entity.HasOne(d => d.IdLoteNavigation).WithMany(p => p.AlertasVencimientos)
                 .HasForeignKey(d => d.IdLote)
-                .HasConstraintName("FK__AlertasVe__idLot__5EBF139D");
+                .HasConstraintName("FK__AlertasVe__idLot__5FB337D6");
         });
 
         modelBuilder.Entity<Cliente>(entity =>
         {
-            entity.HasKey(e => e.IdCliente).HasName("PK__Clientes__885457EE84B21ADD");
+            entity.HasKey(e => e.IdCliente).HasName("PK__Cliente__885457EE4551D00B");
 
-            entity.HasIndex(e => e.Nit, "UQ__Clientes__DF97D0E4D9E08A5D").IsUnique();
+            entity.ToTable("Cliente");
+
+            entity.HasIndex(e => e.Nit, "UQ__Cliente__DF97D0E4BC4AD9D8").IsUnique();
 
             entity.Property(e => e.IdCliente).HasColumnName("idCliente");
             entity.Property(e => e.Correo)
@@ -85,10 +87,6 @@ public partial class SistemaInventarioLacteosContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("dui");
-            entity.Property(e => e.Ncr)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasColumnName("ncr");
             entity.Property(e => e.Nit)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -97,6 +95,10 @@ public partial class SistemaInventarioLacteosContext : DbContext
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("nombre");
+            entity.Property(e => e.Nrc)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("nrc");
             entity.Property(e => e.Telefono)
                 .HasMaxLength(20)
                 .IsUnicode(false)
@@ -109,7 +111,9 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
         modelBuilder.Entity<Compra>(entity =>
         {
-            entity.HasKey(e => e.IdCompra).HasName("PK__Compras__48B99DB7757940EB");
+            entity.HasKey(e => e.IdCompra).HasName("PK__Compra__48B99DB7590217E7");
+
+            entity.ToTable("Compra");
 
             entity.Property(e => e.IdCompra).HasColumnName("idCompra");
             entity.Property(e => e.FechaCompra)
@@ -123,18 +127,19 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
             entity.HasOne(d => d.IdProveedorNavigation).WithMany(p => p.Compras)
                 .HasForeignKey(d => d.IdProveedor)
-                .HasConstraintName("FK__Compras__idProve__5441852A");
+                .HasConstraintName("FK__Compra__idProvee__5441852A");
         });
 
         modelBuilder.Entity<DetalleCompra>(entity =>
         {
-            entity.HasKey(e => e.IdDetalleCompra).HasName("PK__DetalleC__62C252C1E258776C");
+            entity.HasKey(e => e.IdDetalleCompra).HasName("PK__DetalleC__62C252C1281EA9AE");
 
             entity.ToTable("DetalleCompra");
 
             entity.Property(e => e.IdDetalleCompra).HasColumnName("idDetalleCompra");
             entity.Property(e => e.Cantidad).HasColumnName("cantidad");
             entity.Property(e => e.IdCompra).HasColumnName("idCompra");
+            entity.Property(e => e.IdLote).HasColumnName("idLote");
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Precio)
                 .HasColumnType("decimal(10, 2)")
@@ -145,16 +150,20 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
             entity.HasOne(d => d.IdCompraNavigation).WithMany(p => p.DetalleCompras)
                 .HasForeignKey(d => d.IdCompra)
-                .HasConstraintName("FK__DetalleCo__idCom__571DF1D5");
+                .HasConstraintName("FK__DetalleCo__idCom__5812160E");
+
+            entity.HasOne(d => d.IdLoteNavigation).WithMany(p => p.DetalleCompras)
+                .HasForeignKey(d => d.IdLote)
+                .HasConstraintName("FK__DetalleCo__idLot__571DF1D5");
 
             entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.DetalleCompras)
                 .HasForeignKey(d => d.IdProducto)
-                .HasConstraintName("FK__DetalleCo__idPro__5812160E");
+                .HasConstraintName("FK__DetalleCo__idPro__59063A47");
         });
 
         modelBuilder.Entity<DetalleVentum>(entity =>
         {
-            entity.HasKey(e => e.IdDetalleVenta).HasName("PK__DetalleV__BFE2843FBE9324DE");
+            entity.HasKey(e => e.IdDetalleVenta).HasName("PK__DetalleV__BFE2843FC3DA1E12");
 
             entity.Property(e => e.IdDetalleVenta).HasColumnName("idDetalleVenta");
             entity.Property(e => e.Cantidad).HasColumnName("cantidad");
@@ -178,7 +187,7 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
         modelBuilder.Entity<Inventario>(entity =>
         {
-            entity.HasKey(e => e.IdInventario).HasName("PK__Inventar__8F145B0D47C6074E");
+            entity.HasKey(e => e.IdInventario).HasName("PK__Inventar__8F145B0DAB8F3CDE");
 
             entity.ToTable("Inventario");
 
@@ -194,7 +203,9 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
         modelBuilder.Entity<Lote>(entity =>
         {
-            entity.HasKey(e => e.IdLote).HasName("PK__Lotes__1B91FFCBE9BCDBB5");
+            entity.HasKey(e => e.IdLote).HasName("PK__Lote__1B91FFCB531619FA");
+
+            entity.ToTable("Lote");
 
             entity.Property(e => e.IdLote).HasColumnName("idLote");
             entity.Property(e => e.Cantidad).HasColumnName("cantidad");
@@ -208,12 +219,12 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
             entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.Lotes)
                 .HasForeignKey(d => d.IdProducto)
-                .HasConstraintName("FK__Lotes__idProduct__4222D4EF");
+                .HasConstraintName("FK__Lote__idProducto__4222D4EF");
         });
 
         modelBuilder.Entity<MovimientosInventario>(entity =>
         {
-            entity.HasKey(e => e.IdMovimiento).HasName("PK__Movimien__6285217363D84BC9");
+            entity.HasKey(e => e.IdMovimiento).HasName("PK__Movimien__628521736409F05A");
 
             entity.ToTable("MovimientosInventario");
 
@@ -235,12 +246,14 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
             entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.MovimientosInventarios)
                 .HasForeignKey(d => d.IdProducto)
-                .HasConstraintName("FK__Movimient__idPro__5BE2A6F2");
+                .HasConstraintName("FK__Movimient__idPro__5CD6CB2B");
         });
 
         modelBuilder.Entity<Producto>(entity =>
         {
-            entity.HasKey(e => e.IdProducto).HasName("PK__Producto__07F4A132ED926DB9");
+            entity.HasKey(e => e.IdProducto).HasName("PK__Producto__07F4A1322DA8458A");
+
+            entity.ToTable("Producto");
 
             entity.Property(e => e.IdProducto).HasColumnName("idProducto");
             entity.Property(e => e.Categoria)
@@ -263,9 +276,11 @@ public partial class SistemaInventarioLacteosContext : DbContext
                 .HasColumnName("precioVenta");
         });
 
-        modelBuilder.Entity<Proveedore>(entity =>
+        modelBuilder.Entity<Proveedor>(entity =>
         {
-            entity.HasKey(e => e.IdProveedor).HasName("PK__Proveedo__A3FA8E6BC2B478F5");
+            entity.HasKey(e => e.IdProveedor).HasName("PK__Proveedo__A3FA8E6BFC4BFDD0");
+
+            entity.ToTable("Proveedor");
 
             entity.Property(e => e.IdProveedor).HasColumnName("idProveedor");
             entity.Property(e => e.Correo)
@@ -286,9 +301,11 @@ public partial class SistemaInventarioLacteosContext : DbContext
                 .HasColumnName("telefono");
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<Rol>(entity =>
         {
-            entity.HasKey(e => e.IdRol).HasName("PK__Roles__3C872F76EF4EC06D");
+            entity.HasKey(e => e.IdRol).HasName("PK__Rol__3C872F76B70121E3");
+
+            entity.ToTable("Rol");
 
             entity.Property(e => e.IdRol).HasColumnName("idRol");
             entity.Property(e => e.Descripcion)
@@ -303,9 +320,11 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
         modelBuilder.Entity<Usuario>(entity =>
         {
-            entity.HasKey(e => e.IdUsuario).HasName("PK__Usuarios__645723A677C0EFD8");
+            entity.HasKey(e => e.IdUsuario).HasName("PK__Usuario__645723A69C00C8F2");
 
-            entity.HasIndex(e => e.Usuario1, "UQ__Usuarios__9AFF8FC631150B4F").IsUnique();
+            entity.ToTable("Usuario");
+
+            entity.HasIndex(e => e.Usuario1, "UQ__Usuario__9AFF8FC670A6B5BC").IsUnique();
 
             entity.Property(e => e.IdUsuario).HasColumnName("idUsuario");
             entity.Property(e => e.Contraseña)
@@ -331,12 +350,12 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)
-                .HasConstraintName("FK__Usuarios__idRol__3B75D760");
+                .HasConstraintName("FK__Usuario__idRol__3B75D760");
         });
 
-        modelBuilder.Entity<Venta>(entity =>
+        modelBuilder.Entity<Ventum>(entity =>
         {
-            entity.HasKey(e => e.IdVenta).HasName("PK__Ventas__077D56149E1A87F2");
+            entity.HasKey(e => e.IdVenta).HasName("PK__Venta__077D5614ADCB3D6A");
 
             entity.Property(e => e.IdVenta).HasColumnName("idVenta");
             entity.Property(e => e.FechaVenta)
@@ -355,11 +374,11 @@ public partial class SistemaInventarioLacteosContext : DbContext
 
             entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.Venta)
                 .HasForeignKey(d => d.IdCliente)
-                .HasConstraintName("FK__Ventas__idClient__4BAC3F29");
+                .HasConstraintName("FK__Venta__idCliente__4BAC3F29");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Venta)
                 .HasForeignKey(d => d.IdUsuario)
-                .HasConstraintName("FK__Ventas__idUsuari__4CA06362");
+                .HasConstraintName("FK__Venta__idUsuario__4CA06362");
         });
 
         OnModelCreatingPartial(modelBuilder);

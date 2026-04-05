@@ -19,7 +19,7 @@ public partial class Usuario
 
     public bool? Estado { get; set; }
 
-    public virtual Role? IdRolNavigation { get; set; }
+    public virtual Rol? IdRolNavigation { get; set; }
 
-    public virtual ICollection<Venta> Venta { get; set; } = new List<Venta>();
+    public virtual ICollection<Ventum> Venta { get; set; } = new List<Ventum>();
 }

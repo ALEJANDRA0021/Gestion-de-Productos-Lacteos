@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Gestion_de_Productos_Lacteos.Models;
 using Microsoft.EntityFrameworkCore;
 //using Gestion_de_Productos_Lacteos.Services;
 var builder = WebApplication.CreateBuilder(args);

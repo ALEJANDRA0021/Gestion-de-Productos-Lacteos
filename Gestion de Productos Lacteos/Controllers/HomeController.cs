@@ -1,4 +1,4 @@
-using Gestion_de_Productos_Lacteos.Models;
+//using Gestion_de_Productos_Lacteos.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -22,11 +22,6 @@ namespace Gestion_de_Productos_Lacteos.Controllers
         {
             return View();
         }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
     }
+    
 }

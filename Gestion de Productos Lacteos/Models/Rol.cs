@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Gestion_de_Productos_Lacteos.Models;
 
-public partial class Role
+public partial class Rol
 {
     public int IdRol { get; set; }
 

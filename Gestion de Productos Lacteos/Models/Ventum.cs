@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Gestion_de_Productos_Lacteos.Models;
 
-public partial class Venta
+public partial class Ventum
 {
     public int IdVenta { get; set; }
 

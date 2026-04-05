@@ -19,5 +19,7 @@ public partial class Lote
 
     public virtual ICollection<AlertasVencimiento> AlertasVencimientos { get; set; } = new List<AlertasVencimiento>();
 
+    public virtual ICollection<DetalleCompra> DetalleCompras { get; set; } = new List<DetalleCompra>();
+
     public virtual Producto? IdProductoNavigation { get; set; }
 }
