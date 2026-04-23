@@ -1,0 +1,95 @@
+﻿@model SistemaInventarioLacteos.Models.ViewModels.ProductoViewModel
+
+@{
+    ViewData["Title"] = "Nuevo Producto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle me-2" style="color: #9b59b6;"></i>
+                        Registrar Nuevo Producto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NombreProducto" class="form-label fw-bold"></label>
+                                <input asp-for="NombreProducto" class="form-control" placeholder="Ej: Queso Fresco" />
+                                <span asp-validation-for="NombreProducto" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Categoria" class="form-label fw-bold"></label>
+                                <input asp-for="Categoria" class="form-control" placeholder="Ej: Lácteos" />
+                                <span asp-validation-for="Categoria" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Descripcion" class="form-label fw-bold"></label>
+                            <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Descripción del producto..."></textarea>
+                            <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PrecioCompra" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background: #fef9e6;">$</span>
+                                    <input asp-for="PrecioCompra" class="form-control" placeholder="0.00" />
+                                </div>
+                                <span asp-validation-for="PrecioCompra" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PrecioVenta" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background: #fef9e6;">$</span>
+                                    <input asp-for="PrecioVenta" class="form-control" placeholder="0.00" />
+                                </div>
+                                <span asp-validation-for="PrecioVenta" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StockActual" class="form-label fw-bold"></label>
+                                <input asp-for="StockActual" class="form-control" type="number" min="0" placeholder="0" />
+                                <span asp-validation-for="StockActual" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StockMinimo" class="form-label fw-bold"></label>
+                                <input asp-for="StockMinimo" class="form-control" type="number" min="0" placeholder="10" />
+                                <span asp-validation-for="StockMinimo" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Guardar Producto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

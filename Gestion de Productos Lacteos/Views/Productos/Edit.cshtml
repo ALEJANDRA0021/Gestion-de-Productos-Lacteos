@@ -1,0 +1,102 @@
+﻿@model SistemaInventarioLacteos.Models.ViewModels.ProductoViewModel
+
+@{
+    ViewData["Title"] = "Editar Producto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2" style="color: #9b59b6;"></i>
+                        Editar Producto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="IdProducto" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NombreProducto" class="form-label fw-bold"></label>
+                                <input asp-for="NombreProducto" class="form-control" />
+                                <span asp-validation-for="NombreProducto" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Categoria" class="form-label fw-bold"></label>
+                                <input asp-for="Categoria" class="form-control" />
+                                <span asp-validation-for="Categoria" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Descripcion" class="form-label fw-bold"></label>
+                            <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PrecioCompra" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background: #fef9e6;">$</span>
+                                    <input asp-for="PrecioCompra" class="form-control" />
+                                </div>
+                                <span asp-validation-for="PrecioCompra" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PrecioVenta" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background: #fef9e6;">$</span>
+                                    <input asp-for="PrecioVenta" class="form-control" />
+                                </div>
+                                <span asp-validation-for="PrecioVenta" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StockMinimo" class="form-label fw-bold"></label>
+                                <input asp-for="StockMinimo" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="StockMinimo" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check mt-4">
+                                    <input asp-for="Activo" class="form-check-input" type="checkbox" />
+                                    <label asp-for="Activo" class="form-check-label fw-bold"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Stock actual:</strong> @Model.StockActual unidades
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-3">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

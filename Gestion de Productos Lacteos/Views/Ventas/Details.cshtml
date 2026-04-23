@@ -1,0 +1,109 @@
+﻿@model Gestion_de_Productos_Lacteos.Models.ViewModels.VentaRegistroViewModel
+
+@{
+    ViewData["Title"] = $"Detalle de Venta #{Model.IdVenta}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-receipt me-2" style="color: #9b59b6;"></i>
+                            Detalle de Venta #@Model.IdVenta
+                        </h5>
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i> Volver
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="card" style="background: #fff5f7;">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">
+                                        <i class="fas fa-info-circle me-1"></i> Información General
+                                    </h6>
+                                    <p class="mb-2">
+                                        <strong>Fecha:</strong> @Model.FechaVenta.ToString("dd/MM/yyyy HH:mm")
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Cliente:</strong> @Model.NombreCliente
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Total:</strong>
+                                        <span class="text-success fw-bold fs-4">@Model.Total?.ToString("C")</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card" style="background: #fff5f0;">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-3">
+                                        <i class="fas fa-chart-simple me-1"></i> Resumen
+                                    </h6>
+                                    <p class="mb-2">
+                                        <strong>Productos vendidos:</strong> @Model.Detalles.Count
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Unidades totales:</strong> @Model.Detalles.Sum(d => d.Cantidad)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3">
+                        <i class="fas fa-boxes me-2" style="color: #e84393;"></i>
+                        Productos Vendidos
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead style="background: #fef9e6;">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-end">Precio Unitario</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detalle in Model.Detalles)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@detalle.NombreProducto</strong>
+                                        </td>
+                                        <td class="text-center">@detalle.Cantidad</td>
+                                        <td class="text-end">@detalle.Precio.ToString("C")</td>
+                                        <td class="text-end fw-bold text-success">@detalle.Subtotal.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot style="background: #fef9e6;">
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold fs-5">TOTAL:</td>
+                                    <td class="text-end fw-bold fs-4 text-success">@Model.Total?.ToString("C")</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button onclick="window.print()" class="btn btn-outline-secondary">
+                            <i class="fas fa-print me-1"></i> Imprimir
+                        </button>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-1"></i> Nueva Venta
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
